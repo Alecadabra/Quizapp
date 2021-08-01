@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
 
 void main() {
   runApp(MyApp());
@@ -10,49 +12,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: MyFirstWidget(
-          color: Colors.teal,
-        ),
+        body: MyFirstWidget(),
       ),
     );
   }
 }
 
-class MyFirstWidget extends StatefulWidget {
+class MyFirstWidget extends StatelessWidget {
   final Color color;
 
   const MyFirstWidget({Key? key, this.color = Colors.red}) : super(key: key);
 
   @override
-  _MyFirstWidgetState createState() => _MyFirstWidgetState();
-}
-
-class _MyFirstWidgetState extends State<MyFirstWidget> {
-  int count = 0;
-
-  @override
-  void initState() {
-    // Do stuff before initialisation
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // Do stuff before dying
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Center(
-      child: TextButton(
-        child: Text('$count'),
-        onPressed: () {
-          setState(() {
-            count++;
-          });
-        },
-      ),
+      child: Platform.isAndroid
+          ? Switch(value: true, onChanged: (v) => null)
+          : CupertinoSwitch(value: true, onChanged: (v) => null),
     );
   }
 }
