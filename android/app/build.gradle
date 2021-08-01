@@ -60,4 +60,4 @@ dependencies {
     implementation "androidx.multidex:multidex:$multidex_version"
 }
 
-apply plugin 'com.google.gms.google-services'
+apply plugin: 'com.google.gms.google-services'
