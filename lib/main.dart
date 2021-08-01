@@ -12,23 +12,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: MyFirstWidget(),
+        appBar: AppBar(
+          title: Text('My App'),
+        ),
+        body: Center(
+          child: Icon(Icons.cake),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          child: Icon(Icons.plus_one),
+        ),
+        drawer: Drawer(),
       ),
-    );
-  }
-}
-
-class MyFirstWidget extends StatelessWidget {
-  final Color color;
-
-  const MyFirstWidget({Key? key, this.color = Colors.red}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Platform.isAndroid
-          ? Switch(value: true, onChanged: (v) => null)
-          : CupertinoSwitch(value: true, onChanged: (v) => null),
     );
   }
 }
