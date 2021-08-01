@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "876561034162",
+    "project_id": "quizapp-7ed19",
+    "storage_bucket": "quizapp-7ed19.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:876561034162:android:83dabfd41a1e731a4e52ab",
+        "android_client_info": {
+          "package_name": "alecadabra.quizapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "876561034162-6n91feamn30f3b9aehuv2i1lt2n1uph6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATE6_o2OWhii4A1BxiXpsjra5RHkDOnPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "876561034162-6n91feamn30f3b9aehuv2i1lt2n1uph6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
