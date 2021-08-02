@@ -24,10 +24,16 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _updateFirestoreValue() async {
-    var data = await DatabaseService().getValue('jKrKCYcAxsMo7YKhet8l');
-    setState(() {
-      _firestoreValue = data!['value'] ?? 'returned null';
-    });
+    try {
+      var data = await DatabaseService().getValue('jKrKCYcAxsMo7YKhet8l');
+      setState(() {
+        _firestoreValue = data!['value'] ?? 'Returned null';
+      });
+    } catch (e) {
+      setState(() {
+        _firestoreValue = 'Exception thrown!';
+      });
+    }
   }
 
   @override
@@ -35,7 +41,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text(_firestoreValue),
+          title: Text('My Test App'),
         ),
         body: Center(
           child: Text(_firestoreValue),
