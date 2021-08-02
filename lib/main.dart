@@ -15,6 +15,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  // A value pulled from Firestore, or 'null'
   String _firestoreValue = 'null';
 
   @override
@@ -23,13 +24,18 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
+  // Gets a value from Firestore and updates _firestoreValue with it
   void _updateFirestoreValue() async {
     try {
-      var data = await DatabaseService().getValue('jKrKCYcAxsMo7YKhet8l');
+      // Get the data document map from Firestore
+      Map<String, dynamic>? data =
+          await DatabaseService().getValue('jKrKCYcAxsMo7YKhet8l');
       setState(() {
+        // Set the state value to the 'value' from the map
         _firestoreValue = data!['value'] ?? 'Returned null';
       });
     } catch (e) {
+      // Exception thrown probably due to lack of permission or network
       setState(() {
         _firestoreValue = 'Exception thrown!';
       });
@@ -41,13 +47,13 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('My Test App'),
+          title: Text('My Test'),
         ),
         body: Center(
           child: Text(_firestoreValue),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => _updateFirestoreValue(),
+          onPressed: _updateFirestoreValue,
           child: Icon(Icons.download),
         ),
         drawer: Drawer(),
