@@ -7,7 +7,11 @@ import 'package:quizapp/services/auth.dart';
 
 import 'package:quizapp/services/db.dart';
 
-void main() => runApp(MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -38,38 +42,126 @@ class _HomeScreenState extends State<HomeScreen> {
   // A value pulled from Firestore, or 'null'
   String _firestoreValue = 'null';
 
+  String _loginState = 'unknown';
+
+  String _textFieldValue = '';
+
+  final AuthService _authService = AuthService();
+  final DatabaseService _databaseService = DatabaseService();
+  final String _key = 'jKrKCYcAxsMo7YKhet8l';
+
+  @override
+  void initState() {
+    super.initState();
+    _updateLoginState(Provider.of<User?>(context, listen: false));
+  }
+
   // Gets a value from Firestore and updates _firestoreValue with it
-  void _updateFirestoreValue() async {
+  void _firestoreGet() async {
     try {
-      await Firebase.initializeApp();
       // Get the data document map from Firestore
-      Map<String, dynamic>? data =
-          await DatabaseService().getValue('jKrKCYcAxsMo7YKhet8l');
+      Map<String, dynamic>? data = await _databaseService.getValue(_key);
       setState(() {
         // Set the state value to the 'value' from the map
         _firestoreValue = data!['value'] ?? 'Returned null';
       });
     } catch (e) {
       // Exception thrown probably due to lack of permission or network
-      setState(() {
-        _firestoreValue = 'Exception thrown!\n$e';
-      });
+      _showError("An error occurred.\n$e");
     }
+  }
+
+  void _login() async {
+    _updateLoginState(await _authService.anonLogin());
+  }
+
+  void _logout() async {
+    await _authService.logOut();
+    _updateLoginState(Provider.of<User?>(context, listen: false));
+  }
+
+  void _updateLoginState(User? user) {
+    setState(() {
+      if (user == null) {
+        _loginState = "Not logged in";
+      } else {
+        _loginState = "Logged in,\nUID: ${user.uid}";
+      }
+    });
+  }
+
+  void _firestoreUpdate(String value) async {
+    try {
+      await _databaseService.setValue(_key, value);
+    } catch (e) {
+      _showError("An error occurred.\n$e");
+    }
+  }
+
+  void _showError(String error) async {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Test'),
+        title: Text('Fireflutter App'),
       ),
       body: Center(
-        child: Text(_firestoreValue),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Spacer(flex: 2),
+            Text(
+              'Downloaded Value',
+              style: Theme.of(context).textTheme.bodyText1,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 64, vertical: 8),
+              child: Text('\"$_firestoreValue\"'),
+            ),
+            TextButton(
+              onPressed: _firestoreGet,
+              child: Text('Download'),
+            ),
+            Spacer(),
+            Text(
+              'Edit Value',
+              style: Theme.of(context).textTheme.bodyText1,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 64, vertical: 8),
+              child: TextField(
+                onChanged: (text) => {
+                  setState(() {
+                    _textFieldValue = text;
+                  })
+                },
+                decoration: InputDecoration(
+                  labelText: 'Enter value to upload',
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => _firestoreUpdate(_textFieldValue),
+              child: Text('Upload'),
+            ),
+            Spacer(flex: 2),
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _updateFirestoreValue,
-        child: Icon(Icons.download),
-        backgroundColor: Theme.of(context).primaryColor,
+      drawer: Drawer(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(_loginState),
+              TextButton(onPressed: _login, child: Text('Log In')),
+              TextButton(onPressed: _logout, child: Text('Log Out')),
+            ],
+          ),
+        ),
       ),
     );
   }
