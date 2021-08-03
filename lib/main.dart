@@ -6,27 +6,31 @@ import 'package:quizapp/services/db.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatefulWidget {
-  MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
+class MyApp extends StatelessWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: HomeScreen(),
+      theme: ThemeData(primaryColor: Colors.purple),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
-  // A value pulled from Firestore, or 'null'
-  String _firestoreValue = 'null';
+class HomeScreen extends StatefulWidget {
+  HomeScreen({Key? key}) : super(key: key);
 
   @override
-  void initState() {
-    Firebase.initializeApp();
-    super.initState();
-  }
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // A value pulled from Firestore, or 'null'
+  String _firestoreValue = 'null';
 
   // Gets a value from Firestore and updates _firestoreValue with it
   void _updateFirestoreValue() async {
     try {
+      await Firebase.initializeApp();
       // Get the data document map from Firestore
       Map<String, dynamic>? data =
           await DatabaseService().getValue('jKrKCYcAxsMo7YKhet8l');
@@ -37,27 +41,25 @@ class _MyAppState extends State<MyApp> {
     } catch (e) {
       // Exception thrown probably due to lack of permission or network
       setState(() {
-        _firestoreValue = 'Exception thrown!';
+        _firestoreValue = 'Exception thrown! $e';
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('My Test'),
-        ),
-        body: Center(
-          child: Text(_firestoreValue),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _updateFirestoreValue,
-          child: Icon(Icons.download),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('My Test'),
       ),
-      theme: ThemeData(primaryColor: Colors.blue),
+      body: Center(
+        child: Text(_firestoreValue),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _updateFirestoreValue,
+        child: Icon(Icons.download),
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
     );
   }
 }
