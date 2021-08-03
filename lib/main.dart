@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import 'package:quizapp/services/auth.dart';
 
 import 'package:quizapp/services/db.dart';
 
@@ -9,9 +12,17 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HomeScreen(),
-      theme: ThemeData(primaryColor: Colors.purple),
+    return MultiProvider(
+      providers: [
+        StreamProvider<User?>.value(
+          value: AuthService().getUserStream,
+          initialData: AuthService().currentUser,
+        ),
+      ],
+      child: MaterialApp(
+        home: HomeScreen(),
+        theme: ThemeData(primaryColor: Colors.purple),
+      ),
     );
   }
 }
@@ -41,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       // Exception thrown probably due to lack of permission or network
       setState(() {
-        _firestoreValue = 'Exception thrown! $e';
+        _firestoreValue = 'Exception thrown!\n$e';
       });
     }
   }
