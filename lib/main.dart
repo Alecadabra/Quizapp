@@ -83,12 +83,16 @@ class _HomeScreenState extends State<HomeScreen> {
   final _iconLogout = Icon(Icons.logout, color: Colors.white);
   final _iconSuccess = Icon(Icons.check, color: Colors.white);
   final _iconError = Icon(Icons.error, color: Colors.white);
+  final _iconConnected = Icon(Icons.cloud_done);
 
   @override
   void initState() {
     super.initState();
     // Set the login state from the provider's user reference
     _updateLoginState(Provider.of<User?>(context, listen: false));
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      _showMessage('Connected to Firebase', icon: _iconConnected);
+    });
   }
 
   // Logs in to Firebase anonymously
