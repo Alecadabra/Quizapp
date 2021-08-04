@@ -9,24 +9,50 @@ import 'package:quizapp/services/db.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final Future<FirebaseApp> _init = Firebase.initializeApp();
+
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        StreamProvider<User?>.value(
-          value: AuthService().getUserStream,
-          initialData: AuthService().currentUser,
-        ),
-      ],
-      child: MaterialApp(
-        home: HomeScreen(),
-        theme: ThemeData(primaryColor: Colors.purple),
-      ),
+    return FutureBuilder(
+      future: _init,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          // TODO Something went wrong
+          return Scaffold(body: Icon(Icons.error));
+        } else if (snapshot.connectionState != ConnectionState.done) {
+          // TODO Loading
+          return MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(color: Colors.grey),
+              ),
+            ),
+          );
+        } else {
+          // Success
+          return MultiProvider(
+            providers: [
+              StreamProvider<User?>.value(
+                value: AuthService().getUserStream,
+                initialData: AuthService().currentUser,
+              ),
+            ],
+            child: MaterialApp(
+              home: HomeScreen(),
+              theme: ThemeData(primaryColor: Colors.green),
+            ),
+          );
+        } // If
+      }, // Builder
     );
   }
 }
