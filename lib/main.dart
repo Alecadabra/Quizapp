@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _iconLogout = Icon(Icons.logout, color: Colors.white);
   final _iconSuccess = Icon(Icons.check, color: Colors.white);
   final _iconError = Icon(Icons.error, color: Colors.white);
-  final _iconConnected = Icon(Icons.cloud_done);
+  final _iconConnected = Icon(Icons.cloud_done, color: Colors.white);
 
   @override
   void initState() {
