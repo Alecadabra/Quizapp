@@ -65,45 +65,45 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // A value pulled from Firestore, or 'null'
-  String _firestoreValue = 'null';
+  // The value pulled from Firestore, or 'None'
+  String _firestoreValue = 'None';
 
+  // A textual description of whether or not the user is logged in
   String _loginState = 'unknown';
 
+  // The value entered into the app to upload to Firestore
   String _textFieldValue = '';
 
   final AuthService _authService = AuthService();
   final DatabaseService _databaseService = DatabaseService();
   final String _key = 'jKrKCYcAxsMo7YKhet8l';
 
+  final _iconLoading = CircularProgressIndicator();
+  final _iconLogin = Icon(Icons.login, color: Colors.white);
+  final _iconLogout = Icon(Icons.logout, color: Colors.white);
+  final _iconSuccess = Icon(Icons.check, color: Colors.white);
+  final _iconError = Icon(Icons.error, color: Colors.white);
+
   @override
   void initState() {
     super.initState();
+    // Set the login state from the provider's user reference
     _updateLoginState(Provider.of<User?>(context, listen: false));
   }
 
-  // Gets a value from Firestore and updates _firestoreValue with it
-  void _firestoreGet() async {
-    try {
-      // Get the data document map from Firestore
-      Map<String, dynamic>? data = await _databaseService.getValue(_key);
-      setState(() {
-        // Set the state value to the 'value' from the map
-        _firestoreValue = data!['value'] ?? 'Returned null';
-      });
-    } catch (e) {
-      // Exception thrown probably due to lack of permission or network
-      _showError("An error occurred.\n$e");
-    }
-  }
-
+  // Logs in to Firebase anonymously
   void _login() async {
+    _showMessage("Logging in...", icon: _iconLoading);
     _updateLoginState(await _authService.anonLogin());
+    _showMessage("Logged in", icon: _iconLogin);
   }
 
+  // Logs out of Firebase anonymously
   void _logout() async {
+    _showMessage("Logging out...", icon: _iconLoading);
     await _authService.logOut();
     _updateLoginState(Provider.of<User?>(context, listen: false));
+    _showMessage("Logged out", icon: _iconLogout);
   }
 
   void _updateLoginState(User? user) {
@@ -116,16 +116,61 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _firestoreUpdate(String value) async {
+  // Gets a value from Firestore and updates _firestoreValue with it
+  void _firestoreGet() async {
+    _showMessage("Downloading...", icon: _iconLoading);
     try {
-      await _databaseService.setValue(_key, value);
+      // Get the data document map from Firestore
+      Map<String, dynamic>? data = await _databaseService.getValue(_key);
+      setState(() {
+        // Set the state value to the 'value' from the map
+        _firestoreValue = data!['value'] ?? 'Returned null';
+      });
+      _showMessage(
+        "Value \"$_firestoreValue\" downloaded.",
+        icon: _iconSuccess,
+      );
     } catch (e) {
-      _showError("An error occurred.\n$e");
+      // Exception thrown probably due to lack of permission or network
+      _showMessage("An error occurred.\n$e", icon: _iconError);
     }
   }
 
-  void _showError(String error) async {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+  void _firestoreUpdate(String value) async {
+    try {
+      _showMessage("Uploading...", icon: _iconLoading);
+
+      await _databaseService.setValue(_key, value);
+
+      _showMessage("Value \"$value\" uploaded.", icon: _iconSuccess);
+    } catch (e) {
+      _showMessage("An error occurred.\n$e", icon: _iconError);
+    }
+  }
+
+  void _showMessage(String message, {Widget? icon}) async {
+    var messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
+      SnackBar(
+        content: icon != null
+            ? Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 24),
+                    child: icon,
+                  ),
+                  Expanded(
+                    child: Text(
+                      message,
+                    ),
+                  ),
+                ],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              )
+            : Text(message),
+      ),
+    );
   }
 
   @override
@@ -182,9 +227,24 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(_loginState),
-              TextButton(onPressed: _login, child: Text('Log In')),
-              TextButton(onPressed: _logout, child: Text('Log Out')),
+              Text(
+                _loginState,
+                overflow: TextOverflow.clip,
+              ),
+              TextButton(
+                onPressed: () {
+                  _login();
+                  Navigator.pop(context);
+                },
+                child: Text('Log In'),
+              ),
+              TextButton(
+                onPressed: () {
+                  _logout();
+                  Navigator.pop(context);
+                },
+                child: Text('Log Out'),
+              ),
             ],
           ),
         ),
